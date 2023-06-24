@@ -1,3 +1,5 @@
+extern crate libpal;
+
 /* Basic XOR gate principle:
 A B   Output
 0 0 -> 0
