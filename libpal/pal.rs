@@ -23,7 +23,10 @@ pub fn encode_hex(vec: &Vec<u8>) -> String
 // Constract and returns a String from a Vector of Bytes with a copy
 pub fn u8VecToString(vec: &Vec<u8>) -> String
 {
-	return String::from_utf8(vec.clone()).expect("Found invalid UTF-8");
+	let maybe = unsafe {
+		String::from_utf8_unchecked(vec.clone())
+	};
+	return maybe;
 }
 
 // My hacky version to allow only human readable ascii characters
@@ -96,16 +99,19 @@ pub fn CountMessageScore(input: &Vec<u8>) -> u8
 	return counter as u8;
 }
 
-// Cracks Single Character XOR using bruteforce method
-pub fn CrackXor(HexString: &str) -> String
+pub struct XorCrackSolution
 {
-	let byte_stream = decode_hex(HexString).unwrap_or_else(|error| {
-        println!("Failed to parse: {}", error);
-		// Provide a fallback value or return an appropriate error value
-		Vec::new()
-    });
+	pub text: String,
+	pub score: u8,
+}
 
+// Cracks Single Character XOR using bruteforce method
+pub fn CrackXor(HexString: &str) -> XorCrackSolution
+{
+	let byte_stream = decode_hex(HexString).unwrap();
 	let mut list_of_solutions = Vec::new();
+
+	//println!("byte_stream {:?}", byte_stream);
 
 	let mut i:u8 = 0;
 
@@ -115,10 +121,10 @@ pub fn CrackXor(HexString: &str) -> String
 		for j in 0..byte_stream.len()
 		{
 			let res_ch = byte_stream[j] ^ i;
-			if !ValidateHumanReadableChar(&(res_ch as char))
-			{
-				break;
-			}
+			// if !ValidateHumanReadableChar(&(res_ch as char))
+			// {
+			// 	break;
+			// }
 			msg_array.push(res_ch);
 		}
 
@@ -128,6 +134,8 @@ pub fn CrackXor(HexString: &str) -> String
 			list_of_solutions.push(msg_array);
 		}
 	}
+
+	//println!("byte_stream {:?}", list_of_solutions);
 
 	let mut local_max = 0;
 	let mut abs_max = 0;
@@ -145,7 +153,20 @@ pub fn CrackXor(HexString: &str) -> String
 		}
 	}
 
-	let s = u8VecToString(&list_of_solutions[index as usize]);
-	//println!("{:?}", s);
-	return s;
+	let mut sol = XorCrackSolution 
+	{
+		text: "".to_string(),
+		score: 0,
+	};
+
+	if(list_of_solutions.len() == 0)
+	{
+		return sol;
+	}
+	else
+	{
+		sol.text = u8VecToString(&list_of_solutions[index as usize]);
+		sol.score = abs_max;
+		return sol;
+	}
 }

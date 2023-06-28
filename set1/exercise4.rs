@@ -1,21 +1,38 @@
 extern crate libpal;
-use std::fs;
+use std::fs::read_to_string;
 
-fn ReadFromFile(file_path: String) -> String
-{
-	println!("In file {}", file_path);
-	let contents = fs::read_to_string(file_path)
-		.expect("Should have been able to read the file");
-	println!("With text:\n{contents}");
-
-	return contents;
+fn read_lines(filename: &str) -> Vec<String> {
+    read_to_string(filename) 
+        .unwrap()  // panic on possible file-reading errors
+        .lines()  // split the string into an iterator of string slices
+        .map(String::from)  // make each slice into a string
+        .collect()  // gather them together into a vector
 }
 
 fn CrackXorTest()
 {
-	let hexStream = ReadFromFile("set1/file4.txt".to_string());
-	let message = libpal::CrackXor(&hexStream);
-	println!("{}", message);
+	let lines =  read_lines("set1/file4.txt");
+
+	println!("Total Candidates {}", lines.len());
+
+	let mut maxScore = 0;
+	let mut index = 0;
+	let mut solution : String = "".to_string();
+
+	for i in 0..lines.len()
+	{
+		let sol: libpal::XorCrackSolution = libpal::CrackXor(&lines[i]);
+		if(sol.text != "")
+		{
+			if(sol.score > maxScore)
+			{
+				maxScore = sol.score;
+				solution = sol.text;
+				index = i;
+			}
+		}
+	}
+	println!("Id: {}, Message {}, Score {}", index, solution, maxScore);
 }
 
 fn main()
