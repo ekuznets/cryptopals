@@ -99,7 +99,11 @@ pub fn CountMessageScore(input: &Vec<u8>) -> u8
 // Cracks Single Character XOR using bruteforce method
 pub fn CrackXor(HexString: &str) -> String
 {
-	let byte_stream = decode_hex(&HexString).unwrap();
+	let byte_stream = decode_hex(HexString).unwrap_or_else(|error| {
+        println!("Failed to parse: {}", error);
+		// Provide a fallback value or return an appropriate error value
+		Vec::new()
+    });
 
 	let mut list_of_solutions = Vec::new();
 
