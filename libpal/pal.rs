@@ -61,37 +61,33 @@ pub fn ValidateHumanReadableChar(ch: &char) -> bool
 */
 pub fn CountMessageScore(input: &Vec<u8>) -> u8
 {
-	// ToDo: this can be much better but I am lazy to fix
-	let mut vowels_set: HashSet::<u8> = HashSet::new();
-	vowels_set.insert('a' as u8);
-	vowels_set.insert('e' as u8);
-	vowels_set.insert('i' as u8);
-	vowels_set.insert('o' as u8);
-	vowels_set.insert('u' as u8);
-	vowels_set.insert('y' as u8);
-
+	// Set of Vowels which is our score points
+	let vowels_set: HashSet<u8> = vec![('a' as u8), ('e' as u8), ('i' as u8), ('o' as u8), ('u' as u8), ('y' as u8)].into_iter().collect();
 	let mut counter:i32 = 0;
 
 	for &byte in input 
 	{
-        let character = byte as char;
+		let character = byte as char;
 		if character.is_alphabetic()
 		{
-            let lowercase_char = character.to_ascii_lowercase();
+			let lowercase_char = character.to_ascii_lowercase();
+			// Vowels adds 1 score, else it is a 0 score
 			if vowels_set.contains(&(lowercase_char as u8)) 
 			{
-                counter += 1;
-            }
+				counter += 1;
+			}
 		}
 		else if character == ' '
 		{
 			counter += 1;
 		}
+		// Takes all not renderable character, numbers and special characters
 		else
 		{
 			counter -=1;
 		}
 	}
+	// Lets leave 0 score as String that is not even worth considering
 	if counter < 0
 	{
 		counter = 0;
@@ -111,8 +107,6 @@ pub fn CrackXor(HexString: &str) -> XorCrackSolution
 	let byte_stream = decode_hex(HexString).unwrap();
 	let mut list_of_solutions = Vec::new();
 
-	//println!("byte_stream {:?}", byte_stream);
-
 	let mut i:u8 = 0;
 
 	for i in 0..255
@@ -121,10 +115,6 @@ pub fn CrackXor(HexString: &str) -> XorCrackSolution
 		for j in 0..byte_stream.len()
 		{
 			let res_ch = byte_stream[j] ^ i;
-			// if !ValidateHumanReadableChar(&(res_ch as char))
-			// {
-			// 	break;
-			// }
 			msg_array.push(res_ch);
 		}
 
@@ -134,8 +124,6 @@ pub fn CrackXor(HexString: &str) -> XorCrackSolution
 			list_of_solutions.push(msg_array);
 		}
 	}
-
-	//println!("byte_stream {:?}", list_of_solutions);
 
 	let mut local_max = 0;
 	let mut abs_max = 0;
@@ -159,7 +147,7 @@ pub fn CrackXor(HexString: &str) -> XorCrackSolution
 		score: 0,
 	};
 
-	if(list_of_solutions.len() == 0)
+	if list_of_solutions.len() == 0
 	{
 		return sol;
 	}
