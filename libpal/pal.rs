@@ -23,7 +23,10 @@ pub fn encode_hex(vec: &Vec<u8>) -> String
 // Constract and returns a String from a Vector of Bytes with a copy
 pub fn u8VecToString(vec: &Vec<u8>) -> String
 {
-	return String::from_utf8(vec.clone()).expect("Found invalid UTF-8");
+	let maybe = unsafe {
+		String::from_utf8_unchecked(vec.clone())
+	};
+	return maybe;
 }
 
 // My hacky version to allow only human readable ascii characters
@@ -58,40 +61,100 @@ pub fn ValidateHumanReadableChar(ch: &char) -> bool
 */
 pub fn CountMessageScore(input: &Vec<u8>) -> u8
 {
-	// ToDo: this can be much better but I am lazy to fix
-	let mut vowels_set: HashSet::<u8> = HashSet::new();
-	vowels_set.insert('a' as u8);
-	vowels_set.insert('e' as u8);
-	vowels_set.insert('i' as u8);
-	vowels_set.insert('o' as u8);
-	vowels_set.insert('u' as u8);
-	vowels_set.insert('y' as u8);
-
+	// Set of Vowels which is our score points
+	let vowels_set: HashSet<u8> = vec![('a' as u8), ('e' as u8), ('i' as u8), ('o' as u8), ('u' as u8), ('y' as u8)].into_iter().collect();
 	let mut counter:i32 = 0;
 
 	for &byte in input 
 	{
-        let character = byte as char;
+		let character = byte as char;
 		if character.is_alphabetic()
 		{
-            let lowercase_char = character.to_ascii_lowercase();
+			let lowercase_char = character.to_ascii_lowercase();
+			// Vowels adds 1 score, else it is a 0 score
 			if vowels_set.contains(&(lowercase_char as u8)) 
 			{
-                counter += 1;
-            }
+				counter += 1;
+			}
 		}
 		else if character == ' '
 		{
 			counter += 1;
 		}
+		// Takes all not renderable character, numbers and special characters
 		else
 		{
 			counter -=1;
 		}
 	}
+	// Lets leave 0 score as String that is not even worth considering
 	if counter < 0
 	{
 		counter = 0;
 	}
 	return counter as u8;
+}
+
+pub struct XorCrackSolution
+{
+	pub text: String,
+	pub score: u8,
+}
+
+// Cracks Single Character XOR using bruteforce method
+pub fn CrackXor(HexString: &str) -> XorCrackSolution
+{
+	let byte_stream = decode_hex(HexString).unwrap();
+	let mut list_of_solutions = Vec::new();
+
+	let mut i:u8 = 0;
+
+	for i in 0..255
+	{
+		let mut msg_array = Vec::new();
+		for j in 0..byte_stream.len()
+		{
+			let res_ch = byte_stream[j] ^ i;
+			msg_array.push(res_ch);
+		}
+
+		let mut counter = 0;
+		if byte_stream.len() == msg_array.len()
+		{
+			list_of_solutions.push(msg_array);
+		}
+	}
+
+	let mut local_max = 0;
+	let mut abs_max = 0;
+	let mut index = 0;
+
+	for i in 0..list_of_solutions.len()
+	{
+		local_max = CountMessageScore(&list_of_solutions[i]);
+
+		if local_max > abs_max
+		{
+			abs_max = local_max;
+			local_max = 0;
+			index = i;
+		}
+	}
+
+	let mut sol = XorCrackSolution 
+	{
+		text: "".to_string(),
+		score: 0,
+	};
+
+	if list_of_solutions.len() == 0
+	{
+		return sol;
+	}
+	else
+	{
+		sol.text = u8VecToString(&list_of_solutions[index as usize]);
+		sol.score = abs_max;
+		return sol;
+	}
 }
