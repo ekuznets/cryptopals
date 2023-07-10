@@ -29,6 +29,26 @@ pub fn u8VecToString(vec: &Vec<u8>) -> String
 	return maybe;
 }
 
+pub fn StrToU8Vec(input: &str) -> Vec<u8>
+{
+	let mut output = Vec::new();
+	for ch in input.chars()
+	{
+		output.push(ch as u8);
+	}
+	return output;
+}
+
+pub fn U8VecToStr(input: &Vec<u8>) -> String
+{
+	let mut output = String::new();
+	for ch in input
+	{
+		output.push(*ch as char);
+	}
+	return output;
+}
+
 // My hacky version to allow only human readable ascii characters
 // input char is 0 to 255 out of which only 32 to 126 inclusive are readable
 // Does not include ascii extended set of characters
@@ -157,4 +177,24 @@ pub fn CrackXor(HexString: &str) -> XorCrackSolution
 		sol.score = abs_max;
 		return sol;
 	}
+}
+
+pub fn RepeatingKeyXor(input: &str, key: &str) -> Vec<u8>
+{
+	let input_vec = StrToU8Vec(input);
+	let key_vec = StrToU8Vec(key);
+
+	let mut output = Vec::new();
+	let mut key_index = 0;
+
+	for i in 0..input_vec.len()
+	{
+		output.push(input_vec[i] ^ key_vec[key_index]);
+		key_index += 1;
+		if key_index == key_vec.len()
+		{
+			key_index = 0;
+		}
+	}
+	return output;
 }
