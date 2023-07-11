@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+extern crate base64Tools;
 extern crate libpal;
 use std::fs::read_to_string;
 
