@@ -16,7 +16,7 @@ jobs:
       - checkout
       - run:
           name: "Build Lib and run simple test"
-          command: ./build.sh 5
+          command: ./build.sh
 
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
