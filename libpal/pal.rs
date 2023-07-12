@@ -1,5 +1,37 @@
+#![allow(non_snake_case)]
+extern crate base64Tools;
+
 use std::num::ParseIntError;
 use std::collections::HashSet;
+
+// Takes Hex String as input and returns Base64 String
+pub fn HexStringToBase64(input: &str) -> String
+{
+	let byte_vector = decode_hex(input);
+	let output = base64Tools::HexToBase64(&byte_vector.unwrap());
+	let string: String = output.iter().cloned().collect();
+	return string;
+}
+
+/* Basic XOR gate principle:
+A B   Output
+0 0 -> 0
+0 1 -> 1
+1 0 -> 1
+1 1 -> 0 */
+pub fn XoRHexStringOperation(input1 :&str, input2: &str) -> String
+{
+	let parced_input1 = decode_hex(input1).unwrap();
+	let parced_input2 = decode_hex(input2).unwrap();
+	let mut output = Vec::new();
+
+	for i in 0..parced_input1.len()
+	{
+		output.push(parced_input1[i] ^ parced_input2[i]);
+	}
+	let string: String = encode_hex(&output);
+	return string;
+}
 
 // Convect Hex-String into Byte-Vector
 //TODO: reports error if operation failed
@@ -23,12 +55,13 @@ pub fn encode_hex(vec: &Vec<u8>) -> String
 // Constract and returns a String from a Vector of Bytes with a copy
 pub fn u8VecToString(vec: &Vec<u8>) -> String
 {
-	let maybe = unsafe {
+	let string = unsafe {
 		String::from_utf8_unchecked(vec.clone())
 	};
-	return maybe;
+	return string;
 }
 
+// Take a StringView and returns a Vector of Bytes
 pub fn StrToU8Vec(input: &str) -> Vec<u8>
 {
 	let mut output = Vec::new();
@@ -39,28 +72,12 @@ pub fn StrToU8Vec(input: &str) -> Vec<u8>
 	return output;
 }
 
-pub fn U8VecToStr(input: &Vec<u8>) -> String
-{
-	let mut output = String::new();
-	for ch in input
-	{
-		output.push(*ch as char);
-	}
-	return output;
-}
-
 // My hacky version to allow only human readable ascii characters
 // input char is 0 to 255 out of which only 32 to 126 inclusive are readable
 // Does not include ascii extended set of characters
 pub fn ValidateHumanReadableChar(ch: &char) -> bool
 {
-	if (*ch >= ' ') && (*ch <= '~') // 32 is " " and 126 is "~"
-	{
-		return true;
-	}
-	{
-		return false;
-	}
+	return (*ch >= ' ') && (*ch <= '~');
 }
 
 // Message Scoring function:
@@ -151,6 +168,7 @@ pub fn CrackXor(HexString: &str) -> XorCrackSolution
 
 	for i in 0..list_of_solutions.len()
 	{
+		// Pass each possible solution to the scoring function
 		local_max = CountMessageScore(&list_of_solutions[i]);
 
 		if local_max > abs_max
