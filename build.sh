@@ -1,5 +1,6 @@
-# TODO: Rewrite this script into a Rust Cargo
+#!/bin/sh
 
+# TODO: Rewrite this script into a Rust Cargo
 if [ $# -eq 0 ]; then
 	echo "Usage: ./build.sh [exercise number]"
 	echo "If no argument is given, only the library will be built."
