@@ -1,5 +1,6 @@
 *.exe
 *.rlib
 *.lock
+*.pdb
 libpal/target
 set1/target
