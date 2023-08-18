@@ -1,6 +1,5 @@
 #![allow(non_snake_case)]
-extern crate base64Tools;
-extern crate libpal;
+use libpal::pal as libpal;
 
 fn RepeatingKeyXorTest(input: &str, key: &str)
 {

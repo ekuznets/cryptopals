@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-extern crate base64Tools;
+pub use crate::base64Tools;
 
 use std::num::ParseIntError;
 use std::collections::HashSet;
@@ -144,7 +144,7 @@ pub fn CrackXor(HexString: &str) -> XorCrackSolution
 	let byte_stream = decode_hex(HexString).unwrap();
 	let mut list_of_solutions = Vec::new();
 
-	let mut i:u8 = 0;
+	let i:u8 = 0;
 
 	for i in 0..255
 	{
@@ -155,7 +155,6 @@ pub fn CrackXor(HexString: &str) -> XorCrackSolution
 			msg_array.push(res_ch);
 		}
 
-		let mut counter = 0;
 		if byte_stream.len() == msg_array.len()
 		{
 			list_of_solutions.push(msg_array);
