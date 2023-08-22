@@ -46,7 +46,7 @@ pub fn HexToBase64(s: &Vec<u8>) -> Vec<char>
 	for i in (0..s.len()).step_by(3)
 	{
 		let end = std::cmp::min(3, s.len() - i);
-		let mut chunk = &s[i..i + end].to_vec();
+		let chunk = &s[i..i + end].to_vec();
 		output.extend(EncodeChunk(chunk));
 	}
 	return output;

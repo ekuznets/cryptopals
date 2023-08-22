@@ -1,6 +1,5 @@
 #![allow(non_snake_case)]
-extern crate base64Tools;
-extern crate libpal;
+use libpal::pal as libpal;
 use std::fs::read_to_string;
 
 fn read_lines(filename: &str) -> Vec<String> {
@@ -13,7 +12,8 @@ fn read_lines(filename: &str) -> Vec<String> {
 
 fn CrackXorTest()
 {
-	let lines =  read_lines("set1/file4.txt");
+	// Cargo sets the executable directory to be you current directory
+	let lines =  read_lines("solutions/data/file4.txt");
 
 	println!("Total Candidates {}", lines.len());
 
@@ -24,9 +24,9 @@ fn CrackXorTest()
 	for i in 0..lines.len()
 	{
 		let sol: libpal::XorCrackSolution = libpal::CrackXor(&lines[i]);
-		if(sol.text != "")
+		if sol.text != ""
 		{
-			if(sol.score > maxScore)
+			if sol.score > maxScore
 			{
 				maxScore = sol.score;
 				solution = sol.text;

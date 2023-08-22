@@ -1,0 +1,32 @@
+[package]
+name = "solutions"
+version = "0.5.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+# All exercies goes here, each will have its own executable
+
+[[bin]]
+name = "exercise1"
+path = "solutions/src/exercise1.rs"
+
+[[bin]]
+name = "exercise2"
+path = "solutions/src/exercise2.rs"
+
+[[bin]]
+name = "exercise3"
+path = "solutions/src/exercise3.rs"
+
+[[bin]]
+name = "exercise4"
+path = "solutions/src/exercise4.rs"
+
+[[bin]]
+name = "exercise5"
+path = "solutions/src/exercise5.rs"
+
+# All dependencies goes here
+[dependencies]
+libpal = { path = "../libpal" }
