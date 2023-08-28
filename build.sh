@@ -13,6 +13,7 @@ cargo run --bin exercise2
 cargo run --bin exercise3
 cargo run --bin exercise4
 cargo run --bin exercise5
+cargo run --bin exercise6
 
 echo "Done!"
 

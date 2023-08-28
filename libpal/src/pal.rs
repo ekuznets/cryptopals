@@ -3,6 +3,7 @@ pub use crate::base64Tools;
 
 use std::num::ParseIntError;
 use std::collections::HashSet;
+use std::fmt;
 
 // Takes Hex String as input and returns Base64 String
 pub fn HexStringToBase64(input: &str) -> String
@@ -35,11 +36,11 @@ pub fn XoRHexStringOperation(input1 :&str, input2: &str) -> String
 
 // Convect Hex-String into Byte-Vector
 //TODO: reports error if operation failed
-pub fn decode_hex(s: &str) -> Result<Vec<u8>, ParseIntError> 
+pub fn decode_hex(HexString: &str) -> Result<Vec<u8>, ParseIntError> 
 {
-	(0..s.len())
+	(0..HexString.len())
 		.step_by(2)
-		.map(|i| u8::from_str_radix(&s[i..i + 2], 16))
+		.map(|i| u8::from_str_radix(&HexString[i..i + 2], 16))
 		.collect()
 }
 
@@ -136,12 +137,18 @@ pub struct XorCrackSolution
 {
 	pub text: String,
 	pub score: u8,
+	pub key: u8,
+}
+
+impl fmt::Debug for XorCrackSolution {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Key {}, Score: {}, Text: {}", self.key as char, self.key, self.text)
+    }
 }
 
 // Cracks Single Character XOR using bruteforce method
-pub fn CrackXor(HexString: &str) -> XorCrackSolution
+pub fn CrackSingleXor(byte_stream: &Vec<u8>/*HexString: &str*/) -> XorCrackSolution
 {
-	let byte_stream = decode_hex(HexString).unwrap();
 	let mut list_of_solutions = Vec::new();
 
 	let i:u8 = 0;
@@ -182,6 +189,7 @@ pub fn CrackXor(HexString: &str) -> XorCrackSolution
 	{
 		text: "".to_string(),
 		score: 0,
+		key: 0,
 	};
 
 	if list_of_solutions.len() == 0
@@ -192,6 +200,7 @@ pub fn CrackXor(HexString: &str) -> XorCrackSolution
 	{
 		sol.text = u8VecToString(&list_of_solutions[index as usize]);
 		sol.score = abs_max;
+		sol.key = index as u8;
 		return sol;
 	}
 }
