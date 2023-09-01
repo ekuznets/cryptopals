@@ -36,6 +36,10 @@ path = "solutions/src/exercise5.rs"
 name = "exercise7"
 path = "solutions/src/exercise7.rs"
 
+[[bin]]
+name = "exercise8"
+path = "solutions/src/exercise8.rs"
+
 # All dependencies goes here
 [dependencies]
 libpal = { path = "../libpal" }
