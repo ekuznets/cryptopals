@@ -147,7 +147,7 @@ impl fmt::Debug for XorCrackSolution {
 }
 
 // Cracks Single Character XOR using bruteforce method
-pub fn CrackSingleXor(byte_stream: &Vec<u8>/*HexString: &str*/) -> XorCrackSolution
+pub fn CrackSingleXor(byte_stream: &Vec<u8>) -> XorCrackSolution
 {
 	let mut list_of_solutions = Vec::new();
 
