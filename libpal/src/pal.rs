@@ -1,9 +1,13 @@
 #![allow(non_snake_case)]
+extern crate base64;
 pub use crate::base64Tools;
 
 use std::num::ParseIntError;
 use std::collections::HashSet;
 use std::fmt;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+use base64::Engine;
 
 // Takes Hex String as input and returns Base64 String
 pub fn HexStringToBase64(input: &str) -> String
@@ -223,4 +227,24 @@ pub fn RepeatingKeyXor(input: &str, key: &str) -> Vec<u8>
 		}
 	}
 	return output;
+}
+
+pub fn ReadAndDecodeFileByLine(file_path: &str) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+	// Configure file
+	let file = File::open(file_path)?;
+	let reader = BufReader::new(file);
+
+	// Configure Base64 decoder
+	use base64::{alphabet, engine::{self, general_purpose}};
+	const CUSTOM_ENGINE: engine::GeneralPurpose =
+		engine::GeneralPurpose::new(&alphabet::STANDARD, general_purpose::PAD);
+
+	// Read every line and decode the output using build base64 from crate
+	let mut output_data: Vec<u8> = Vec::new();
+	for line in reader.lines() {
+		let encoded_line = line?;
+		let decoded_data = Engine::decode(&CUSTOM_ENGINE,&encoded_line)?;
+		output_data.extend(decoded_data);
+	}
+	Ok(output_data)
 }

@@ -1,17 +1,13 @@
 #![allow(non_snake_case)]
 use libpal::pal as libpal;
 
-use std::fs::File;
-use std::io::{BufRead, BufReader};
-use base64::decode;
-
-// Computes Humming Distance between 2 string chat by char or returns error why it cannot be done
-
-// TODO: this can be improved with a look up table or a better version for improved efficiency.
-// This is a hot spot function
-
 fn ComputeHummingDistanceStr(input1: &str,input2: &str) -> Result<u32, &'static str> 
 {
+	// Validate size is the same
+	if input1.len() != input2.len()
+	{
+		return Err("String Length Missmatch!");
+	}
 	let vec1: Vec<_> = libpal::StrToU8Vec(input1);
 	let vec2: Vec<_> = libpal::StrToU8Vec(input2);
 	return ComputeHummingDistance(vec1, vec2);
@@ -24,15 +20,12 @@ fn ComputeHummingDistance(input1: Vec<u8>, input2: Vec<u8>) -> Result<u32, &'sta
 	{
 		return Err("String Length Missmatch!");
 	}
-
 	let mut distance: u32 = 0;
-
 	for i in 0..input1.len()
 	{
 		let res = (input1[i] as u8) as u32 ^ (input2[i] as u8) as u32;
 		distance += res.count_ones();
 	}
-
 	return Ok(distance);
 }
 
@@ -72,22 +65,11 @@ fn GuessKeySize(input: &Vec<u8>) -> usize
 	return bestkeylen;
 }
 
-fn DecodeFile(file_path: &str) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
-    let file = File::open(file_path)?;
-    let reader = BufReader::new(file);
-    let mut output_data: Vec<u8> = Vec::new();
 
-    for line in reader.lines() {
-        let encoded_line = line?;
-        let decoded_data = decode(&encoded_line)?;
-        output_data.extend(decoded_data);
-    }
-    Ok(output_data)
-}
 
 fn main()
 {
-	let content = DecodeFile("solutions/data/file6.txt");
+	let content = libpal::ReadAndDecodeFileByLine("solutions/data/file6.txt");
 
 	if content.is_err()
 	{
