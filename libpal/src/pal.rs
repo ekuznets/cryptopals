@@ -269,3 +269,31 @@ pub fn TransposeDataBasedonKeyLen(input: &Vec<u8>, keyLen: usize) -> Vec<Vec<u8>
 	}
 	return blocks;
 }
+
+pub fn ComputeHummingDistanceStr(input1: &str,input2: &str) -> Result<u32, &'static str> 
+{
+	// Validate size is the same
+	if input1.len() != input2.len()
+	{
+		return Err("String Length Missmatch!");
+	}
+	let vec1: Vec<_> = StrToU8Vec(input1);
+	let vec2: Vec<_> = StrToU8Vec(input2);
+	return ComputeHummingDistance(vec1, vec2);
+}
+
+pub fn ComputeHummingDistance(input1: Vec<u8>, input2: Vec<u8>) -> Result<u32, &'static str> 
+{
+	// Validate size is the same
+	if input1.len() != input2.len()
+	{
+		return Err("String Length Missmatch!");
+	}
+	let mut distance: u32 = 0;
+	for i in 0..input1.len()
+	{
+		let res = (input1[i] as u8) as u32 ^ (input2[i] as u8) as u32;
+		distance += res.count_ones();
+	}
+	return Ok(distance);
+}
