@@ -83,21 +83,7 @@ fn main()
 	println!("Best key len is: {}", bestKeyLen);
 
 	// Peform Transpose
-	let mut blocks: Vec<Vec<u8>> = Vec::new();
-	blocks.resize(bestKeyLen, Vec::new());
-	let mut contentIndex = 0;
-	let mut keyIndex = 0;
-	while contentIndex != rawContent.len()
-	{
-		blocks[keyIndex].push(rawContent[contentIndex]);
-		contentIndex+=1;
-		keyIndex = contentIndex % bestKeyLen;
-	}
-
-	for i in 0..bestKeyLen
-	{
-		println!("Block {} is size {}", i, blocks[i].len());
-	}
+	let blocks: Vec<Vec<u8>> = libpal::TransposeDataBasedonKeyLen(&rawContent, bestKeyLen);
 
 	let mut MessageKey = Vec::<u8>::new();
 
@@ -107,7 +93,6 @@ fn main()
 		MessageKey.push(xor_soloution.key)
 	}
 
-	
 	let stringMessageKey = libpal::u8VecToString(&MessageKey);
 	println!("Found Key: {:?}", stringMessageKey);
 	let stringRawContent = libpal::u8VecToString(&rawContent);

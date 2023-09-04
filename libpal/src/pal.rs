@@ -248,3 +248,24 @@ pub fn ReadAndDecodeFileByLine(file_path: &str) -> Result<Vec<u8>, Box<dyn std::
 	}
 	Ok(output_data)
 }
+
+/*
+	Takes input data and trancates it into chunks of KeyLen size.
+	Then each element index with-in KeyLen placed into a 
+	corresponding vector.
+	Returns: vectors where each indexed element is grouped togeter
+ */
+pub fn TransposeDataBasedonKeyLen(input: &Vec<u8>, keyLen: usize) -> Vec<Vec<u8>>
+{
+	let mut blocks: Vec<Vec<u8>> = Vec::new();
+	blocks.resize(keyLen, Vec::new());
+	let mut contentIndex = 0;
+	let mut keyIndex = 0;
+	while contentIndex != input.len()
+	{
+		blocks[keyIndex].push(input[contentIndex]);
+		contentIndex+=1;
+		keyIndex = contentIndex % keyLen;
+	}
+	return blocks;
+}
