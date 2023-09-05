@@ -27,10 +27,9 @@ path = "solutions/src/exercise4.rs"
 name = "exercise5"
 path = "solutions/src/exercise5.rs"
 
-
-
-
-
+[[bin]]
+name = "exercise6"
+path = "solutions/src/exercise6.rs"
 
 [[bin]]
 name = "exercise7"

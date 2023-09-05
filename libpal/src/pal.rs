@@ -1,8 +1,13 @@
 #![allow(non_snake_case)]
+extern crate base64;
 pub use crate::base64Tools;
 
 use std::num::ParseIntError;
 use std::collections::HashSet;
+use std::fmt;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+use base64::Engine;
 
 // Takes Hex String as input and returns Base64 String
 pub fn HexStringToBase64(input: &str) -> String
@@ -35,11 +40,11 @@ pub fn XoRHexStringOperation(input1 :&str, input2: &str) -> String
 
 // Convect Hex-String into Byte-Vector
 //TODO: reports error if operation failed
-pub fn decode_hex(s: &str) -> Result<Vec<u8>, ParseIntError> 
+pub fn decode_hex(HexString: &str) -> Result<Vec<u8>, ParseIntError> 
 {
-	(0..s.len())
+	(0..HexString.len())
 		.step_by(2)
-		.map(|i| u8::from_str_radix(&s[i..i + 2], 16))
+		.map(|i| u8::from_str_radix(&HexString[i..i + 2], 16))
 		.collect()
 }
 
@@ -136,12 +141,18 @@ pub struct XorCrackSolution
 {
 	pub text: String,
 	pub score: u8,
+	pub key: u8,
+}
+
+impl fmt::Debug for XorCrackSolution {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Key {}, Score: {}, Text: {}", self.key as char, self.key, self.text)
+    }
 }
 
 // Cracks Single Character XOR using bruteforce method
-pub fn CrackXor(HexString: &str) -> XorCrackSolution
+pub fn CrackSingleXor(byte_stream: &Vec<u8>) -> XorCrackSolution
 {
-	let byte_stream = decode_hex(HexString).unwrap();
 	let mut list_of_solutions = Vec::new();
 
 	let i:u8 = 0;
@@ -182,6 +193,7 @@ pub fn CrackXor(HexString: &str) -> XorCrackSolution
 	{
 		text: "".to_string(),
 		score: 0,
+		key: 0,
 	};
 
 	if list_of_solutions.len() == 0
@@ -192,6 +204,7 @@ pub fn CrackXor(HexString: &str) -> XorCrackSolution
 	{
 		sol.text = u8VecToString(&list_of_solutions[index as usize]);
 		sol.score = abs_max;
+		sol.key = index as u8;
 		return sol;
 	}
 }
@@ -214,4 +227,73 @@ pub fn RepeatingKeyXor(input: &str, key: &str) -> Vec<u8>
 		}
 	}
 	return output;
+}
+
+pub fn ReadAndDecodeFileByLine(file_path: &str) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+	// Configure file
+	let file = File::open(file_path)?;
+	let reader = BufReader::new(file);
+
+	// Configure Base64 decoder
+	use base64::{alphabet, engine::{self, general_purpose}};
+	const CUSTOM_ENGINE: engine::GeneralPurpose =
+		engine::GeneralPurpose::new(&alphabet::STANDARD, general_purpose::PAD);
+
+	// Read every line and decode the output using build base64 from crate
+	let mut output_data: Vec<u8> = Vec::new();
+	for line in reader.lines() {
+		let encoded_line = line?;
+		let decoded_data = Engine::decode(&CUSTOM_ENGINE,&encoded_line)?;
+		output_data.extend(decoded_data);
+	}
+	Ok(output_data)
+}
+
+/*
+	Takes input data and trancates it into chunks of KeyLen size.
+	Then each element index with-in KeyLen placed into a 
+	corresponding vector.
+	Returns: vectors where each indexed element is grouped togeter
+ */
+pub fn TransposeDataBasedonKeyLen(input: &Vec<u8>, keyLen: usize) -> Vec<Vec<u8>>
+{
+	let mut blocks: Vec<Vec<u8>> = Vec::new();
+	blocks.resize(keyLen, Vec::new());
+	let mut contentIndex = 0;
+	let mut keyIndex = 0;
+	while contentIndex != input.len()
+	{
+		blocks[keyIndex].push(input[contentIndex]);
+		contentIndex+=1;
+		keyIndex = contentIndex % keyLen;
+	}
+	return blocks;
+}
+
+pub fn ComputeHummingDistanceStr(input1: &str,input2: &str) -> Result<u32, &'static str> 
+{
+	// Validate size is the same
+	if input1.len() != input2.len()
+	{
+		return Err("String Length Missmatch!");
+	}
+	let vec1: Vec<_> = StrToU8Vec(input1);
+	let vec2: Vec<_> = StrToU8Vec(input2);
+	return ComputeHummingDistance(vec1, vec2);
+}
+
+pub fn ComputeHummingDistance(input1: Vec<u8>, input2: Vec<u8>) -> Result<u32, &'static str> 
+{
+	// Validate size is the same
+	if input1.len() != input2.len()
+	{
+		return Err("String Length Missmatch!");
+	}
+	let mut distance: u32 = 0;
+	for i in 0..input1.len()
+	{
+		let res = (input1[i] as u8) as u32 ^ (input2[i] as u8) as u32;
+		distance += res.count_ones();
+	}
+	return Ok(distance);
 }
