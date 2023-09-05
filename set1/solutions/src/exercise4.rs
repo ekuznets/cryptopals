@@ -10,7 +10,7 @@ fn read_lines(filename: &str) -> Vec<String> {
         .collect()  // gather them together into a vector
 }
 
-fn CrackXorTest()
+fn CrackSingleXorTest()
 {
 	// Cargo sets the executable directory to be you current directory
 	let lines =  read_lines("solutions/data/file4.txt");
@@ -23,7 +23,8 @@ fn CrackXorTest()
 
 	for i in 0..lines.len()
 	{
-		let sol: libpal::XorCrackSolution = libpal::CrackXor(&lines[i]);
+		let byte_stream = libpal::decode_hex(&lines[i]).unwrap();
+		let sol: libpal::XorCrackSolution = libpal::CrackSingleXor(&byte_stream);
 		if sol.text != ""
 		{
 			if sol.score > maxScore
@@ -39,5 +40,5 @@ fn CrackXorTest()
 
 fn main()
 {
-	CrackXorTest();
+	CrackSingleXorTest();
 }
