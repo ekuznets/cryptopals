@@ -1,39 +1,23 @@
 #![allow(non_snake_case)]
 use libpal::pal as libpal;
-use std::fs::File;
-use std::io::{BufRead, BufReader};
-use base64::decode;
-
 use generic_array;
 use aes::Aes128;
 use aes::cipher::{
     BlockDecrypt, KeyInit
 };
 
-fn DecodeFile(file_path: &str) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
-    let file = File::open(file_path)?;
-    let reader = BufReader::new(file);
-    let mut output_data: Vec<u8> = Vec::new();
-
-    for line in reader.lines() {
-        let encoded_line = line?;
-        let decoded_data = decode(&encoded_line)?;
-        output_data.extend(decoded_data);
-    }
-    Ok(output_data)
-}
-
 fn main()
 {
 	// Setup Key
+	// TODO: Create a cipher factory that will given a key will create me an engine
 	use generic_array::{typenum::U16, GenericArray};
 	let phrase = "YELLOW SUBMARINE";
-	let bytes = phrase.as_bytes();
+	let bytes = phrase.as_bytes(); // TODO: This API is ugly, is there a better way?
 	let key: GenericArray<_, U16> = GenericArray::clone_from_slice(&bytes[0..16]);
 	let cipher = Aes128::new(&key);
 
 	// Setup Data
-	let content = DecodeFile("solutions/data/file7.txt");
+	let content = libpal::ReadAndDecodeFileByLine("solutions/data/file7.txt");
 
 	if content.is_err()
 	{

@@ -87,18 +87,21 @@ pub fn ValidateHumanReadableChar(ch: &char) -> bool
 
 // Message Scoring function:
 /*
-	Human text usually has about 40% vowels letters where as randomly you would
+	- Human text usually has about 40% vowels letters where as randomly you would
 	expect only 6/26 ~ 22%
-	Also human text usually has ' ' space between words but in random string space
-	would have a really small probability to occure.
-	Also, human text has little of special characters.
+	- Also human text usually has ' ' space between words 
+	but in random string it would have a really small probability to occure.
+	- Also, human text has little of special characters. 
+	
 	Thus we can capitalize on that:
-	Each vowels = 1 point
-	Each space = 1 point
-	Each special character = -1 point
-	Else it is 0 points
+	* Each vowels = 1 point
+	* Each space = 1 point
+	* Each special character = -1 point
+	* Else it is 0 points
 
-	I could also add Capital letter huristic but lets not bother for now.
+	- I could also add Capital letter huristic but lets not bother for now.
+	Capital letters would also give negative 1 point, since they are rare.
+
 	This is not 100% great algorithm but it would do most of the text and thus good enough.
 */
 pub fn CountMessageScore(input: &Vec<u8>) -> u8
@@ -112,14 +115,14 @@ pub fn CountMessageScore(input: &Vec<u8>) -> u8
 		let character = byte as char;
 		if character.is_alphabetic()
 		{
-			let lowercase_char = character.to_ascii_lowercase();
+			let lowercase_char = character.to_ascii_lowercase(); // Dont bother with capital letters
 			// Vowels adds 1 score, else it is a 0 score
 			if vowels_set.contains(&(lowercase_char as u8)) 
 			{
 				counter += 1;
 			}
 		}
-		else if character == ' '
+		else if character == ' ' // space is a 1 point
 		{
 			counter += 1;
 		}
