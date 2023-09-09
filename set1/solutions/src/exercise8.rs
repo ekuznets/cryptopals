@@ -17,6 +17,14 @@ fn ReadRawFile(file_path: &str) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
     Ok(output_data)
 }
 
+/*
+	How this attack works:
+	Assumptions: when dealing with AES in ECB mode we know that the same input will produce the same output
+	So we will be reading files and track hashes of each block from the file as an entry.
+	We assuming that file will have two itentical entries that are encrypted.
+	Once we process every block then we will end up with matching encrypted blocks.
+	Thus we can assume we detected ECB mode.
+*/
 fn main()
 {
 	// Since we are trying to crack AES in ECB we settle for AES to be 128bits = 16 bytes

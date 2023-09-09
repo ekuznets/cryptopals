@@ -8,6 +8,11 @@ use std::fmt;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use base64::Engine;
+use generic_array;
+use aes::Aes128;
+use aes::cipher::{
+    BlockDecrypt, KeyInit
+};
 
 // Takes Hex String as input and returns Base64 String
 pub fn HexStringToBase64(input: &str) -> String
@@ -299,4 +304,22 @@ pub fn ComputeHummingDistance(input1: Vec<u8>, input2: Vec<u8>) -> Result<u32, &
 		distance += res.count_ones();
 	}
 	return Ok(distance);
+}
+
+// Given data and the key we can decrypt the data 
+// assuming it is encrypted with AES128ECB
+pub fn DecryptAES128ECB(input: &Vec<u8>, key: &Vec<u8>) -> Vec<u8>
+{
+	use generic_array::{typenum::U16, GenericArray};
+	let cipher = Aes128::new(&GenericArray::from_slice(key));
+
+	let mut decryptData: Vec<u8> = Vec::new();
+	for i in (0..input.len()).step_by(16)
+	{
+		let mut block: GenericArray<_, U16> = GenericArray::clone_from_slice(&input[i..i+16]);
+		cipher.decrypt_block(&mut block);
+		let mut vec: Vec<u8> = block.as_slice().try_into().expect("Ok");
+		decryptData.append(&mut vec);
+	}
+	return decryptData;
 }
