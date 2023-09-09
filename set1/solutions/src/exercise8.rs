@@ -4,6 +4,9 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::collections::HashSet;
 
+// TODO: This functions could be extanded since it needs to read Hex data from file
+// but now we read each hex character as a byte but would be much better to
+// combine to hex to produce a byte. I will keep this for future work.
 fn ReadRawFile(file_path: &str) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
     let file = File::open(file_path)?;
     let reader = BufReader::new(file);
@@ -21,8 +24,7 @@ fn main()
 	let rawData = ReadRawFile("solutions/data/file8.txt");
 	let data = rawData.unwrap(); // unwraping moves data
 	println!("Data len {} bytes", data.len()/2);
-	let mut uniqueBlocks = HashSet::new();
-	let mut numOfDuplicates = 0;
+	let mut uniqueBlocks = HashSet::new(); // storing unique bloack so we can compare for duplicates 
 
 	// Since data is in Hex format which means 4 bits per symbol then we have to multiply by 2 to make 32hex=16 bytes block size
 	for i in (0..data.len()).step_by(BLOCK_SIZE*2)
