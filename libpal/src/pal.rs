@@ -8,6 +8,11 @@ use std::fmt;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use base64::Engine;
+use generic_array;
+use aes::Aes128;
+use aes::cipher::{
+    BlockDecrypt, KeyInit
+};
 
 // Takes Hex String as input and returns Base64 String
 pub fn HexStringToBase64(input: &str) -> String
@@ -87,18 +92,21 @@ pub fn ValidateHumanReadableChar(ch: &char) -> bool
 
 // Message Scoring function:
 /*
-	Human text usually has about 40% vowels letters where as randomly you would
+	- Human text usually has about 40% vowels letters where as randomly you would
 	expect only 6/26 ~ 22%
-	Also human text usually has ' ' space between words but in random string space
-	would have a really small probability to occure.
-	Also, human text has little of special characters.
+	- Also human text usually has ' ' space between words 
+	but in random string it would have a really small probability to occure.
+	- Also, human text has little of special characters. 
+	
 	Thus we can capitalize on that:
-	Each vowels = 1 point
-	Each space = 1 point
-	Each special character = -1 point
-	Else it is 0 points
+	* Each vowels = 1 point
+	* Each space = 1 point
+	* Each special character = -1 point
+	* Else it is 0 points
 
-	I could also add Capital letter huristic but lets not bother for now.
+	- I could also add Capital letter huristic but lets not bother for now.
+	Capital letters would also give negative 1 point, since they are rare.
+
 	This is not 100% great algorithm but it would do most of the text and thus good enough.
 */
 pub fn CountMessageScore(input: &Vec<u8>) -> u8
@@ -112,14 +120,14 @@ pub fn CountMessageScore(input: &Vec<u8>) -> u8
 		let character = byte as char;
 		if character.is_alphabetic()
 		{
-			let lowercase_char = character.to_ascii_lowercase();
+			let lowercase_char = character.to_ascii_lowercase(); // Dont bother with capital letters
 			// Vowels adds 1 score, else it is a 0 score
 			if vowels_set.contains(&(lowercase_char as u8)) 
 			{
 				counter += 1;
 			}
 		}
-		else if character == ' '
+		else if character == ' ' // space is a 1 point
 		{
 			counter += 1;
 		}
@@ -296,4 +304,22 @@ pub fn ComputeHummingDistance(input1: Vec<u8>, input2: Vec<u8>) -> Result<u32, &
 		distance += res.count_ones();
 	}
 	return Ok(distance);
+}
+
+// Given data and the key we can decrypt the data 
+// assuming it is encrypted with AES128ECB
+pub fn DecryptAES128ECB(input: &Vec<u8>, key: &Vec<u8>) -> Vec<u8>
+{
+	use generic_array::{typenum::U16, GenericArray};
+	let cipher = Aes128::new(&GenericArray::from_slice(key));
+
+	let mut decryptData: Vec<u8> = Vec::new();
+	for i in (0..input.len()).step_by(16)
+	{
+		let mut block: GenericArray<_, U16> = GenericArray::clone_from_slice(&input[i..i+16]);
+		cipher.decrypt_block(&mut block);
+		let mut vec: Vec<u8> = block.as_slice().try_into().expect("Ok");
+		decryptData.append(&mut vec);
+	}
+	return decryptData;
 }

@@ -7,3 +7,5 @@ edition = "2021"
 
 [dependencies]
 base64 = "0.21.2"
+aes= "0.8.3"
+generic-array = "0.14.7"
