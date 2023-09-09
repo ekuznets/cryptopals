@@ -1,4 +1,6 @@
-Solving a CryptoPals chalanges in Rust
+Solving a CryptoPals chalanges in Rust.
+
+Set 1 complete!
 
 From https://cryptopals.com/
 
