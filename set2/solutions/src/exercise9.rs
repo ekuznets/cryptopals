@@ -22,6 +22,13 @@ fn Produce_PKCS7_Padding(input: &Vec<u8>) -> Vec<u8>
 	return padding_bits;
 }
 
+fn Strip_PKCS7_Padding(input: &mut Vec<u8>) -> Vec<u8>
+{
+	let padding_value: usize = input[input.len()-1].into();
+	input.truncate(input.len() - padding_value);
+	return input.to_vec();
+}
+
 // When using AES128 "YELLOW SUBMARINE" text will be padded to two blocks
 // This is because it is already 16 bytes and in which case extra 16 will be added.
 fn Test_Proper()
@@ -50,8 +57,21 @@ fn Test_Improper()
 	assert_eq!(text_final, "YELLOW SUBMARINE\x04\x04\x04\x04");
 }
 
+// This test is needed only to prove that example in the exercise is working
+fn Test_Inverse()
+{
+	let text = "YELLOW SUBMARINE";
+	let mut padding = Produce_PKCS7_Padding(&text.as_bytes().to_vec());
+	let mut padded_text = libpal::StrToU8Vec(text);
+	padded_text.append(&mut padding);
+	padded_text = Strip_PKCS7_Padding(&mut padded_text);
+	// After adding and string padding, text should remain the same
+	assert_eq!(libpal::u8VecToString(&padded_text), text);
+}
+
 fn main()
 {
 	Test_Proper();
 	Test_Improper();
+	Test_Inverse();
 }
