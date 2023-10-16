@@ -1,0 +1,19 @@
+[package]
+name = "solutions_set2"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+# All exercies goes here, each will have its own executable
+
+[[bin]]
+name = "exercise9"
+path = "solutions/src/exercise9.rs"
+
+# All dependencies goes here
+[dependencies]
+libpal = { path = "../libpal" }
+base64 = "0.21.2"
+aes= "0.8.3"
+generic-array = "0.14.7"

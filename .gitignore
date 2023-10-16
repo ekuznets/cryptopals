@@ -3,4 +3,5 @@
 *.lock
 *.pdb
 libpal/target
-set1/target
+set*/target
+*.o
