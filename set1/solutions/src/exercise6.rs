@@ -93,6 +93,6 @@ fn main()
 	let stringMessageKey = libpal::u8VecToString(&MessageKey);
 	println!("Found Key: {:?}", stringMessageKey);
 	let stringText = libpal::u8VecToString(&rawContent);
-	let decryptText = libpal::BreakRepeatingXorKey(&stringText, &stringMessageKey);
+	let decryptText = libpal::RepeatingKeyXor(&stringText, &stringMessageKey);
 	println!("Decrypted Text: {:?}", libpal::u8VecToString(&decryptText));
 }
