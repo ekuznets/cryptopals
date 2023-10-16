@@ -24,5 +24,7 @@ TestExercise 6
 TestExercise 7
 TestExercise 8
 
-echo "Done!"
+cd ../set2
+TestExercise 9
 
+echo "Done!"
