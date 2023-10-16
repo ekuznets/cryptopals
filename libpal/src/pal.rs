@@ -308,7 +308,8 @@ pub fn ComputeHummingDistance(input1: Vec<u8>, input2: Vec<u8>) -> Result<u32, &
 
 // Given data and the key we can decrypt the data 
 // assuming it is encrypted with AES128ECB
-pub fn DecryptAES128ECB(input: &Vec<u8>, key: &Vec<u8>) -> Vec<u8>
+// Dont use this function, only keep as a reference in favour of DecryptAES128ECB
+pub fn DecryptAES128ECB_LAZY(input: &Vec<u8>, key: &Vec<u8>) -> Vec<u8>
 {
 	use generic_array::{typenum::U16, GenericArray};
 	let cipher = Aes128::new(&GenericArray::from_slice(key));
@@ -321,5 +322,22 @@ pub fn DecryptAES128ECB(input: &Vec<u8>, key: &Vec<u8>) -> Vec<u8>
 		let mut vec: Vec<u8> = block.as_slice().try_into().expect("Ok");
 		decryptData.append(&mut vec);
 	}
+	return decryptData;
+}
+
+pub fn DecryptAES128ECB(input: &[u8], key: &[u8]) -> Vec<u8>
+{
+	// WE only want to deal with 128bit chunks = 16 bytes
+	assert!(input.len() % 16 == 0, "Input data is not 128bit aligned!");
+	assert!(key.len() == 16, "Key Must be 16 bytes");
+	use generic_array::{typenum::U16, GenericArray};
+	 // TODO: Test how ineficient this is to be created for each block
+	let cipher = Aes128::new(&GenericArray::from_slice(key));
+	let mut decryptData: Vec<u8> = Vec::new();
+	let mut block: GenericArray<_, U16> = GenericArray::clone_from_slice(&input[0..16]);
+	cipher.decrypt_block(&mut block);
+	let mut vec: Vec<u8> = block.as_slice().try_into().expect("Ok");
+	decryptData.append(&mut vec);
+
 	return decryptData;
 }

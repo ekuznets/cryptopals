@@ -16,7 +16,13 @@ fn main()
 	let rawContent = content.unwrap();
 	println!("Content size {}", rawContent.len());
 
+	let mut decryptData = Vec::new();
+
 	// Decrypt data with the key using AES128ECB
-	let decryptData: Vec<u8> = libpal::DecryptAES128ECB(&rawContent, &libpal::StrToU8Vec(phrase));
+	for i in (0..rawContent.len()).step_by(16)
+	{	
+		let decryptedChunk: Vec<u8> = libpal::DecryptAES128ECB(&rawContent[i..i+16], &phrase.as_bytes());
+		decryptData.extend(decryptedChunk);
+	}
 	println!("Output: {}", libpal::u8VecToString(&decryptData));
 }

@@ -15,6 +15,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: "Cargo Test"
+          command: "cd libpal; cargo test"
+      - run:
           name: "Build Lib and run simple test"
           command: ./build.sh
 
