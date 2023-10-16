@@ -2,7 +2,7 @@
 
 # Simple test runner with failure detection
 TestExercise () {
-	cargo run --bin exercise$1
+	cargo run --bin exercise"$1"
 	ret_code=$?
 	if [ $ret_code != 0 ]; then
 		printf 'Build has failed, return status %d\n' $ret_code
