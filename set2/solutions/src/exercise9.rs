@@ -6,11 +6,8 @@ const BLOCK_SIZE: usize = 16;
 fn Produce_Padding_Bits(padding_needed: usize) -> Vec<u8>
 {
 	let mut padding_bits = Vec::new();
-	// TODO: I think we can generate this better, this is linear time and not constant time
-	for i in 0..padding_needed
-	{
-		padding_bits.push(padding_needed as u8);
-	}
+	// Number of bits needed is also the value of each padding bit
+	padding_bits.resize(padding_needed, padding_needed as u8);
 	return padding_bits;
 }
 
@@ -20,7 +17,7 @@ fn Produce_Padding_Bits(padding_needed: usize) -> Vec<u8>
 fn Produce_PKCS7_Padding(input: &Vec<u8>) -> Vec<u8>
 {
 	let mut padding_bits: Vec<u8> = Vec::new();
-	let padding_needed = BLOCK_SIZE - (input.len() % BLOCK_SIZE);
+	let padding_needed = BLOCK_SIZE - (input.len() & 15); // HACK
 	let padding_bits = Produce_Padding_Bits(padding_needed);
 	return padding_bits;
 }
