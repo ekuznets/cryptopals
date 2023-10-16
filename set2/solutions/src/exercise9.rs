@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use libpal::pal as libpal;
 
-let BLOCK_SIZE = 16;
+const BLOCK_SIZE: usize = 16;
 
 fn Produce_Padding_Bits(padding_needed: usize) -> Vec<u8>
 {
