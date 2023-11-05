@@ -11,7 +11,7 @@ use base64::Engine;
 use generic_array;
 use aes::Aes128;
 use aes::cipher::{
-    BlockDecrypt, KeyInit
+    BlockEncryptMut, BlockDecrypt, KeyInit
 };
 
 // Takes Hex String as input and returns Base64 String
@@ -42,6 +42,17 @@ pub fn XoRHexStringOperation(input1 :&str, input2: &str) -> String
 	let string: String = encode_hex(&output);
 	return string;
 }
+
+pub fn XoRHexVectorOperation(input1: &[u8], input2: &[u8]) -> Vec<u8>
+{
+	let mut output = Vec::new();
+	for i in 0..input1.len()
+	{
+		output.push(input1[i] ^ input2[i]);
+	}
+	return output;
+}
+
 
 // Convect Hex-String into Byte-Vector
 //TODO: reports error if operation failed
@@ -309,6 +320,7 @@ pub fn ComputeHummingDistance(input1: Vec<u8>, input2: Vec<u8>) -> Result<u32, &
 // Given data and the key we can decrypt the data 
 // assuming it is encrypted with AES128ECB
 // Dont use this function, only keep as a reference in favour of DecryptAES128ECB
+// Still dont know what is mut and what is not for blocks
 pub fn DecryptAES128ECB_LAZY(input: &Vec<u8>, key: &Vec<u8>) -> Vec<u8>
 {
 	use generic_array::{typenum::U16, GenericArray};
@@ -325,10 +337,13 @@ pub fn DecryptAES128ECB_LAZY(input: &Vec<u8>, key: &Vec<u8>) -> Vec<u8>
 	return decryptData;
 }
 
+// Todo: we should pass a cypher instead of creating it each time
+// This function would do much better being inline
+
 pub fn DecryptAES128ECB(input: &[u8], key: &[u8]) -> Vec<u8>
 {
 	// WE only want to deal with 128bit chunks = 16 bytes
-	assert!(input.len() % 16 == 0, "Input data is not 128bit aligned!");
+	assert!(input.len() == 16, "Input data is not 128bit aligned!");
 	assert!(key.len() == 16, "Key Must be 16 bytes");
 	use generic_array::{typenum::U16, GenericArray};
 	 // TODO: Test how ineficient this is to be created for each block
@@ -341,3 +356,58 @@ pub fn DecryptAES128ECB(input: &[u8], key: &[u8]) -> Vec<u8>
 
 	return decryptData;
 }
+
+pub fn EncryptAES128ECB(input: &[u8], key: &[u8]) -> Vec<u8>
+{
+	// WE only want to deal with 128bit chunks = 16 bytes
+	assert!(input.len() == 16, "Input data is not 128bit aligned!");
+	assert!(key.len() == 16, "Key Must be 16 bytes");
+	use generic_array::{typenum::U16, GenericArray};
+	 // TODO: Test how ineficient this is to be created for each block
+	let mut cipher = Aes128::new(&GenericArray::from_slice(key));
+	let mut encryptData: Vec<u8> = Vec::new();
+	let mut block: GenericArray<_, U16> = GenericArray::clone_from_slice(&input[0..16]);
+	cipher.encrypt_block_mut(&mut block);
+	let mut vec: Vec<u8> = block.as_slice().try_into().expect("Ok");
+	encryptData.append(&mut vec);
+	return encryptData;
+}
+
+pub fn EncryptAES128CBC(input: &[u8], key: &[u8], IV: &[u8]) -> Vec<u8>
+{
+	assert!(input.len() % 16 == 0, "Input data is not 128bit aligned!");
+	assert!(key.len() == 16, "Key Must be 16 bytes");
+	assert!(IV.len() == 16, "IV Must be 16 bytes");
+	use generic_array::{typenum::U16, GenericArray};
+
+	let mut cipher = Aes128::new(&GenericArray::from_slice(key));
+	
+	let XoRData = XoRHexVectorOperation(input, IV);
+
+	let mut encryptData: Vec<u8> = Vec::new();
+	let mut block: GenericArray<_, U16> = GenericArray::clone_from_slice(&XoRData[0..16]);
+	cipher.encrypt_block_mut(&mut block);
+	let mut vec: Vec<u8> = block.as_slice().try_into().expect("Ok");
+	encryptData.append(&mut vec);
+	return encryptData;
+}
+
+
+// pub fn DecryptAES128CBC(input: &[u8], key: &[u8], IV: &[u8]) -> Vec<u8>
+// {
+// 	assert!(input.len() == 16, "Input data is not 128bit aligned!");
+// 	assert!(key.len() == 16, "Key Must be 16 bytes");
+// 	assert!(IV.len() == 16, "IV Must be 16 bytes");
+// 	use generic_array::{typenum::U16, GenericArray};
+
+// 	let cipher = Aes128::new(&GenericArray::from_slice(key));
+	
+// 	let mut encryptData: Vec<u8> = Vec::new();
+// 	let mut block: GenericArray<_, U16> = GenericArray::clone_from_slice(&input[0..16]);
+// 	cipher.decrypt_block(&mut block);
+// 	let mut vec: Vec<u8> = block.as_slice().try_into().expect("Ok");
+// 	encryptData.append(&mut vec);
+
+// 	let unXoRData = XoRHexVectorOperation(&encryptData[0..16], IV);
+// 	return unXoRData;
+// }
