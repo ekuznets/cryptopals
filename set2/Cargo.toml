@@ -11,6 +11,10 @@ edition = "2021"
 name = "exercise9"
 path = "solutions/src/exercise9.rs"
 
+[[bin]]
+name = "exercise10"
+path = "solutions/src/exercise10.rs"
+
 # All dependencies goes here
 [dependencies]
 libpal = { path = "../libpal" }
