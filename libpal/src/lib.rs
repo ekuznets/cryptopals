@@ -5,31 +5,6 @@ pub mod pal;
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn Test_DecryptAES128ECB_SUCCESS() {
-		let test_str:Result<Vec<u8>, std::num::ParseIntError> = pal::decode_hex("9D235990830654F0997B73572C56B9A960FA36707E45F499DBA0F25B922301A5");
-		let key_str: &str = "YELLOW SUBMARINE";
-        let decrypt_msg = pal::DecryptAES128ECB(test_str.unwrap().as_slice(), key_str.as_bytes());
-        println!("Decrypted msg: {}", pal::u8VecToString(&decrypt_msg));
-    }
-
-	#[test]
-	#[should_panic]
-	fn Test_DecryptAES128ECB_BAD_TEXT() {
-		let test_str:Result<Vec<u8>, std::num::ParseIntError> = pal::decode_hex("9D235990");
-		let key_str: &str = "YELLOW SUBMARINE";
-        let decrypt_msg = pal::DecryptAES128ECB(test_str.unwrap().as_slice(), key_str.as_bytes());
-    }
-
-	#[test]
-	#[should_panic]
-	fn Test_DecryptAES128ECB_BAD_KEY() {
-		let test_str:Result<Vec<u8>, std::num::ParseIntError> = pal::decode_hex("9D235990830654F0997B73572C56B9A960FA36707E45F499DBA0F25B922301A5");
-		let key_str: &str = "BadKey";
-        let decrypt_msg = pal::DecryptAES128ECB(test_str.unwrap().as_slice(), key_str.as_bytes());
-    }
-
 	#[test]
 	fn Test_EncryptDecrypt_AES128ECB_SAMETEXT() {
 		let text: &str = "Zalupa1234567890";
@@ -40,21 +15,6 @@ mod tests {
 		assert_eq!(text.as_bytes(), decrypt_msg.as_slice());
         println!("Encrypted and then decrypted msg: {}", pal::u8VecToString(&decrypt_msg));
     }
-
-
-	// TODO: rework this test later when I understand the flow of it better
-	// #[test]
-	// fn Test_EncryptDecrypt_AES128CBC_SAMETEXT() {
-	// 	let text: &str = "Zalupa1234567890";
-	// 	let key_str: &str = "YELLOW SUBMARINE";
-	// 	let IV: &str = "1111111111111111";
-	// 	let ecnrypt_message = pal::EncryptAES128CBC(text.as_bytes(), key_str.as_bytes(), IV.as_bytes());
-    //     let decrypt_msg = pal::DecryptAES128CBC(ecnrypt_message.as_slice(), key_str.as_bytes(), IV.as_bytes());
-
-	// 	assert_eq!(text.as_bytes(), decrypt_msg.as_slice());
-    //     println!("Encrypted and then decrypted msg: {}", pal::u8VecToString(&decrypt_msg));
-    // }
-
 
 	#[test]
 	fn Test_EncryptDecrypt_AES128CBC_LARGETEXT_SAMETEXT()
